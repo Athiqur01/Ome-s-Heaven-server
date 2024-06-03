@@ -32,6 +32,7 @@ async function run() {
     await client.connect();
     const userCollection = client.db("omesHeaven").collection('users');
     const apartmentCollection = client.db("omesHeaven").collection('apartments');
+    const agreementCollection = client.db("omesHeaven").collection('agreement');
     // Send a ping to confirm a successful connection
 
     //Post operation
@@ -40,13 +41,30 @@ async function run() {
         const result=await userCollection.insertOne(newUser)
         res.send(result)
     })
+    app.post("/agreementInfo", async(req,res)=>{
+        const agreementInfo=req.body
+        const query= {email:agreementInfo.email}
+        const checkInfo=await agreementCollection.findOne(query)
+        if(checkInfo){
+          return res.send({message:'user already exist', insertedId:null})
+        }
+        const result=await agreementCollection.insertOne(agreementInfo)
+        res.send(result)
+    })
 
     //get operation
     app.get("/users", async(req,res)=>{
-        const email=req.query.email
+        const email=req.query?.email
         const query={email:email}
         const user=await userCollection.findOne(query)
         res.send(user)
+    })
+
+    app.get("/agreementInfo", async(req,res)=>{
+        const email=req.query.email
+        const query={email:email}
+        const agreementData=await agreementCollection.findOne(query)
+        res.send(agreementData)
     })
 
 
