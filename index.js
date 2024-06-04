@@ -73,6 +73,14 @@ async function run() {
         const user=await cursor.toArray(cursor)
         res.send(user)
     })
+
+    app.get("/agreement", async(req,res)=>{
+        const cursor=await agreementCollection.find()
+        const agreement=await cursor.toArray(cursor)
+        res.send(agreement)
+    })
+
+
     app.get("/apartment", async(req,res)=>{
         const cursor=await apartmentCollection.find()
         const user=await cursor.toArray(cursor)
