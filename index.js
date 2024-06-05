@@ -33,6 +33,7 @@ async function run() {
     const userCollection = client.db("omesHeaven").collection('users');
     const apartmentCollection = client.db("omesHeaven").collection('apartments');
     const agreementCollection = client.db("omesHeaven").collection('agreement');
+    const announcementCollection = client.db("omesHeaven").collection('announcement');
     // Send a ping to confirm a successful connection
 
     //Post operation
@@ -41,6 +42,13 @@ async function run() {
         const result=await userCollection.insertOne(newUser)
         res.send(result)
     })
+
+    app.post("/announcements", async(req,res)=>{
+        const announcement=req.body
+        const result=await announcementCollection.insertOne(announcement)
+        res.send(result)
+    })
+
     app.post("/agreementInfo", async(req,res)=>{
         const agreementInfo=req.body
         const query= {email:agreementInfo.email}
@@ -93,6 +101,12 @@ async function run() {
         res.send(user)
     })
 
+    app.get("/announcements", async(req,res)=>{
+        const cursor=await announcementCollection.find()
+        const announcements=await cursor.toArray(cursor)
+        res.send(announcements)
+    })
+
     //Delete operation--------
     app.delete('/agreement/:id', async(req,res)=>{
       const id=req.params.id
@@ -105,9 +119,11 @@ async function run() {
     app.patch("/agreement", async(req,res)=>{
       const email=req.query.email
       const query={email:email}
+      const agreementAcceptDate = new Date();
       const updateDoc={
         $set:{
-          status:'checked'
+          status:'checked',
+          agreementAcceptDate
         }
       }
       const agreementData=await agreementCollection.updateOne(query,updateDoc)
@@ -122,6 +138,19 @@ async function run() {
           userStatus:'member'
         }
       }
+      const userData=await userCollection.updateOne(query,updateDoc)
+      res.send(userData)
+  })
+
+    app.patch("/singleUser", async(req,res)=>{
+      const email=req.query.email
+      const query={email:email}
+      const updateDoc={
+        $set:{
+          userStatus:'user'
+        }
+      }
+
       const userData=await userCollection.updateOne(query,updateDoc)
       res.send(userData)
   })
