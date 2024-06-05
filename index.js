@@ -1,6 +1,6 @@
 const express=require('express');
 const cors=require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app=express();
 const port= process.env.PORT|| 5020;
@@ -74,6 +74,12 @@ async function run() {
         res.send(user)
     })
 
+    app.get("/allUsers", async(req,res)=>{
+        const cursor=await userCollection.find()
+        const user=await cursor.toArray(cursor)
+        res.send(user)
+    })
+
     app.get("/agreement", async(req,res)=>{
         const cursor=await agreementCollection.find()
         const agreement=await cursor.toArray(cursor)
@@ -86,6 +92,40 @@ async function run() {
         const user=await cursor.toArray(cursor)
         res.send(user)
     })
+
+    //Delete operation--------
+    app.delete('/agreement/:id', async(req,res)=>{
+      const id=req.params.id
+      const query={_id: new ObjectId(id)}
+      const result= await agreementCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    //Patch operation------
+    app.patch("/agreement", async(req,res)=>{
+      const email=req.query.email
+      const query={email:email}
+      const updateDoc={
+        $set:{
+          status:'checked'
+        }
+      }
+      const agreementData=await agreementCollection.updateOne(query,updateDoc)
+      res.send(agreementData)
+  })
+
+    app.patch("/user", async(req,res)=>{
+      const email=req.query.email
+      const query={email:email}
+      const updateDoc={
+        $set:{
+          userStatus:'member'
+        }
+      }
+      const userData=await userCollection.updateOne(query,updateDoc)
+      res.send(userData)
+  })
+
 
 
     await client.db("admin").command({ ping: 1 });
