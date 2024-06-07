@@ -94,12 +94,14 @@ async function run() {
     })
 
     app.get("/allUsers", async(req,res)=>{
+      console.log('inside verify token', req.headers.authorization)
         const cursor=await userCollection.find()
         const user=await cursor.toArray(cursor)
         res.send(user)
     })
 
     app.get("/agreement", async(req,res)=>{
+      console.log('inside verify token of agreement', req.headers.authorization)
         const cursor=await agreementCollection.find()
         const agreement=await cursor.toArray(cursor)
         res.send(agreement)
