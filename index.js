@@ -1,9 +1,12 @@
 const express=require('express');
 const jwt = require('jsonwebtoken');
+
 const cors=require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
+
 const app=express();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port= process.env.PORT|| 5020;
 
 //middle ware-------
@@ -37,9 +40,21 @@ async function run() {
     const announcementCollection = client.db("omesHeaven").collection('announcement');
     // Send a ping to confirm a successful connection
 
+
     //Post operation
 
-    
+    app.post("/create-payment-intent", async(req,res)=>{
+      const {price}=req.body
+      const amount= parseInt(price*100)
+      const paymentIntent=await stripe.paymentIntents?.create({
+        amount:amount,
+        currency:'usd',
+        payment_method_types:['card']
+      })
+      res.send({
+        clientSecret: paymentIntent?.client_secret,
+      });
+    })
 
     app.post("/users", async(req,res)=>{
         const newUser=req.body
@@ -64,6 +79,25 @@ async function run() {
         res.send(result)
     })
 
+    app.post("/create-payment-intent", async(req,res)=>{
+      const {price}=req.body
+
+      const amount= parseInt(price*100)
+      console.log(amount)
+      const paymentIntent=await stripe.paymentIntents.create({
+        amount:amount,
+        currency:'usd',
+        payment_method_types:['card']
+      })
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    })
+
+   
+
+
+
     //verify token------
     const verifyToken=(req,res,next)=>{
       console.log('inside verify token', req.headers.authorization)
@@ -87,6 +121,11 @@ async function run() {
       const token=jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{expiresIn:'365d'})
       res.send({token})
     })
+
+
+   
+
+
 
     //get operation
     app.get("/users", async(req,res)=>{
@@ -136,6 +175,12 @@ async function run() {
         const announcements=await cursor.toArray(cursor)
         res.send(announcements)
     })
+
+
+
+
+
+
 
     //Delete operation--------
     app.delete('/agreement/:id', async(req,res)=>{
