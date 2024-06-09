@@ -11,7 +11,13 @@ const port= process.env.PORT|| 5020;
 
 //middle ware-------
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://ome-s-heaven.web.app",
+    "https://ome-s-heaven.firebaseapp.com",
+  ]
+}));
 app.use(express.json());
 
 //user name:omesHeaven password:15oXqlyO12gfEUtT
@@ -33,11 +39,12 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    //await client.connect();
     const userCollection = client.db("omesHeaven").collection('users');
     const apartmentCollection = client.db("omesHeaven").collection('apartments');
     const agreementCollection = client.db("omesHeaven").collection('agreement');
     const announcementCollection = client.db("omesHeaven").collection('announcement');
+    const paymentCollection = client.db("omesHeaven").collection('payment');
     // Send a ping to confirm a successful connection
 
 
@@ -95,6 +102,12 @@ async function run() {
     })
 
    
+    app.post('/payment', async(req,res)=>{
+      const payment=req.body
+      console.log(payment)
+      const result=await paymentCollection.insertOne(payment)
+        res.send(result)
+    })
 
 
 
@@ -120,6 +133,13 @@ async function run() {
       console.log(user)
       const token=jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{expiresIn:'365d'})
       res.send({token})
+    })
+
+    app.post('/payment', async(req,res)=>{
+      const payment=req.body
+      console.log(payment)
+      const result=await paymentCollection.insertOne(payment)
+        res.send(result)
     })
 
 
@@ -232,7 +252,7 @@ async function run() {
 
 
 
-    await client.db("admin").command({ ping: 1 });
+    //await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
