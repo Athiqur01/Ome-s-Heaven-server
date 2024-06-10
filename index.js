@@ -197,7 +197,7 @@ async function run() {
         res.send(user)
     })
 
-    app.get("/agreement", async(req,res)=>{
+    app.get("/agreement",verifyToken, async(req,res)=>{
       console.log('inside verify token of agreement', req.headers.authorization)
         const cursor=await agreementCollection.find()
         const agreement=await cursor.toArray(cursor)
@@ -217,7 +217,7 @@ async function run() {
         res.send(announcements)
     })
 
-    app.get("/payment", async(req,res)=>{
+    app.get("/payment",verifyToken, async(req,res)=>{
       const email=req.query.email
       const query={email:email}
       const cursor=await paymentCollection.find(query)
@@ -225,7 +225,7 @@ async function run() {
       res.send(payment)
   })
 
-  app.get("/payment", async(req,res)=>{
+  app.get("/payment",verifyToken, async(req,res)=>{
     const cursor=await paymentCollection.find()
     const payment=await cursor.toArray(cursor)
     res.send(payment)
@@ -246,8 +246,16 @@ async function run() {
       res.send(result)
     })
 
+    app.delete('/coupon/:id', async(req,res)=>{
+      const id=req.params.id
+      console.log(id)
+      const query={_id: new ObjectId(id)}
+      const result= await couponCollection.deleteOne(query)
+      res.send(result)
+    })
+
     //Patch operation------
-    app.patch("/agreement", async(req,res)=>{
+    app.patch("/agreement",verifyToken, async(req,res)=>{
       const email=req.query.email
       const query={email:email}
       const agreementAcceptDate = new Date();
