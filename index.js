@@ -45,10 +45,19 @@ async function run() {
     const agreementCollection = client.db("omesHeaven").collection('agreement');
     const announcementCollection = client.db("omesHeaven").collection('announcement');
     const paymentCollection = client.db("omesHeaven").collection('payment');
+    const couponCollection = client.db("omesHeaven").collection('coupon');
     // Send a ping to confirm a successful connection
 
 
     //Post operation
+
+    app.post('/coupon', async(req,res)=>{
+      const coupon=req.body
+      console.log(coupon)
+      const result=await couponCollection.insertOne(coupon)
+        res.send(result)
+    })
+
 
     app.post("/create-payment-intent", async(req,res)=>{
       const {price}=req.body
@@ -142,6 +151,13 @@ async function run() {
         res.send(result)
     })
 
+    app.post('/coupon', async(req,res)=>{
+      const coupon=req.body
+      console.log(payment)
+      const result=await couponCollection.insertOne(coupon)
+        res.send(result)
+    })
+
 
    
 
@@ -167,6 +183,11 @@ async function run() {
         const cursor=await userCollection.find()
         const user=await cursor.toArray(cursor)
         res.send(user)
+    })
+    app.get("/coupon", async(req,res)=>{
+        const cursor=await couponCollection.find()
+        const coupon=await cursor.toArray(cursor)
+        res.send(coupon)
     })
 
     app.get("/allUsers",verifyToken, async(req,res)=>{
