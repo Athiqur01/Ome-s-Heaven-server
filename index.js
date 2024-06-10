@@ -196,6 +196,21 @@ async function run() {
         res.send(announcements)
     })
 
+    app.get("/payment", async(req,res)=>{
+      const email=req.query.email
+      const query={email:email}
+      const cursor=await paymentCollection.find(query)
+      const payment=await cursor.toArray(cursor)
+      res.send(payment)
+  })
+
+  app.get("/payment", async(req,res)=>{
+    const cursor=await paymentCollection.find()
+    const payment=await cursor.toArray(cursor)
+    res.send(payment)
+})
+
+
 
 
 
